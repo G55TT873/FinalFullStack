@@ -18,6 +18,13 @@
       <label for="password">Password:</label>
       <input type="password" id="password" name="password" required>
     </div>
+    <div>
+      <label for="accountType">Account Type:</label>
+      <select id="accountType" name="accountType" required>
+        <option value="chef">Chef</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
     <button type="submit">Add</button>
   </form>
 
@@ -34,7 +41,7 @@
         
         logins.forEach(login => {
           const li = document.createElement('li');
-          li.textContent = `Email: ${login.email}, Password: ${login.password}`;
+          li.textContent = `Email: ${login.email}, Password: ${login.password}, Account Type: ${login.accountType}`;
           
           const deleteButton = document.createElement('button');
           deleteButton.textContent = 'Delete';
@@ -53,6 +60,7 @@
       
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
+      const accountType = document.getElementById('accountType').value;
       
       try {
         const response = await fetch('/add-login', {
@@ -60,14 +68,13 @@
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email, password, accountType }),
         });
 
         if (response.ok) {
           alert('Login added successfully!');
           fetchLogins();
-          document.getElementById('email').value = '';
-          document.getElementById('password').value = '';
+          document.getElementById('add-login-form').reset();
         } else {
           alert('Failed to add login');
         }

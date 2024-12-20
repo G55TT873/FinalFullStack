@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from './order.module.css';
 
 const Order = () => {
@@ -8,6 +9,8 @@ const Order = () => {
   const [selectedRecipe, setSelectedRecipe] = useState<string | null>(null);
   const [orderStatus, setOrderStatus] = useState<string>("");
   const [customerEmail, setCustomerEmail] = useState<string>("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loggedInEmail = localStorage.getItem("userEmail");
@@ -52,7 +55,8 @@ const Order = () => {
 
       const result = await response.json();
       if (response.ok) {
-        setOrderStatus("Order placed successfully!");
+        // Navigate to the OrderStatusPage with order information
+        navigate("/OrderStatusPage", { state: { orderId: result.orderId } });
       } else {
         setOrderStatus(result.error || "Failed to place the order.");
       }
@@ -63,24 +67,32 @@ const Order = () => {
 
   return (
     <div className={styles.main}>
-      <h1 className={styles.title}>Order Your Recipe</h1>
-      <div className={styles.recipeSelect}>
-        <h2 className={styles.label}>Select a Recipe</h2>
-        <select
-          className={styles.recipeDropdown}
-          onChange={(e) => setSelectedRecipe(e.target.value)}
-          value={selectedRecipe || ""}
-        >
-          <option value="">-- Choose a recipe --</option>
-          {recipes.map((recipe) => (
-            <option key={recipe._id} value={recipe._id}>
-              {recipe.name}
-            </option>
-          ))}
-        </select>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Welcome to Taco House</h1>
+        <p className={styles.subtitle}>Select your favorite recipe and place your order</p>
       </div>
-      <button className={styles.orderButton} onClick={handleOrder}>Place Order</button>
-      {orderStatus && <p className={styles.status}>{orderStatus}</p>}
+
+      <div className={styles.menu}>
+        {recipes.map((recipe) => (
+          <div className={styles.menuItem} key={recipe._id}>
+            <img src={recipe.image} alt={recipe.name} className={styles.menuImage} />
+            <h3 className={styles.menuItemName}>{recipe.name}</h3>
+            <p className={styles.menuItemDescription}>{recipe.description}</p>
+            <button
+              className={`${styles.addButton} ${selectedRecipe === recipe._id ? styles.selected : ''}`}
+              onClick={() => setSelectedRecipe(recipe._id)}
+              disabled={selectedRecipe === recipe._id}  // Disable the button once selected
+            >
+              {selectedRecipe === recipe._id ? "Selected" : "Select Recipe"}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div className={styles.orderSection}>
+        <button className={styles.orderButton} onClick={handleOrder}>Place Order</button>
+        {orderStatus && <p className={styles.status}>{orderStatus}</p>}
+      </div>
     </div>
   );
 };

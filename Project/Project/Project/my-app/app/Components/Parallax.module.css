@@ -1,0 +1,334 @@
+.wrapper {
+  
+  overflow-y: scroll;
+  height: 100vh;
+  perspective: 1px;
+  transform-style: preserve-3d;
+  font-size: 62.5%;
+  font-family: 'Overlock', Arial, Helvetica, sans-serif;
+}
+
+.header {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  transform-style: preserve-3d;
+  z-index: -1;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top:0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #F5F1A5;
+  
+  transform: translateZ(-1px) scale(2.1);
+  min-height: 80%;
+  z-index: -2;
+}
+/*https://picsum.photos/g/1921/1081?random*/
+.section {
+  position: relative;
+  min-height: 100%;
+  width: 100%;
+  transform-style: inherit;
+}
+
+.section1 {
+  background: #124734;
+  
+  z-index: 1;
+}
+
+.section2::before {
+  content: '...';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("/img/factory-farmed-chickens-the-humane-league.jpg") top center;
+  background-size: cover;
+  transform: translateZ(-0.6px) scale(1.7);
+  z-index: -1;
+}
+
+/*https://picsum.photos/g/1920/1080?random*/
+.section3 {
+  background: white;
+  z-index: 1;
+}
+.section4 {
+  background: #dce4e1;
+  height: 90vh;
+  z-index: 1;
+}
+.section5 {
+  background: #ffffff;
+  height: 135vh;
+  z-index: 1;
+}
+.subtitle{
+  font-size: 3rem;
+  margin-left: 1rem;
+  font-family: fantasy;
+}
+.heading {
+  font-size: 6rem;
+  text-align: center;
+  position: absolute;
+  padding: 1rem;
+  color: white;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  /* background: #fafafa; */
+  /* box-shadow: 0 0 20px #333; */
+  font-weight: 800;
+  top: 50%;
+  align-items: center;
+  left: 50%;
+  right: -50%;
+  transform: translateZ(-1px) scale(2) translate(-25%, -25%);
+}
+.heading1{
+  padding-left: 9rem;
+  padding-bottom: 20rem;
+  color: #F5F1A5;
+  text-shadow: 0px 0px 0px rgba(255, 255, 255);
+}
+
+.section1 .heading {
+  z-index: 3;
+  transform: translate(-50%, -50%);
+  box-shadow: none;
+}
+
+.section2 .heading {
+  transform: translateZ(-0.3px) scale(1.3) translate(-39%, -39%);
+  z-index: 3;
+}
+.firstp{
+  margin-left: -37rem;
+  font-size: 3rem /* 48px */;
+  line-height: 1;
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity)) /* #ffffff */;
+}
+
+.mypadding {
+  padding-top: 23vh;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image{
+  width:40rem;
+  height:35rem;
+  
+  margin-bottom: 14rem;
+  
+}
+.image2{
+width: 40rem;
+height: 44.25rem;
+margin-left:-0.7rem ;
+margin-bottom: 5rem;
+padding-bottom: 20vh;
+}
+.chickimg{
+position: relative;
+margin-left: -2rem ;
+margin-bottom: 5rem ;
+}
+.cards {
+--tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+  border-radius: 0.5rem ;
+  --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  padding: 1.5rem;
+  height: 80vh;
+  
+}
+.service1{
+background-color: #70D44B;
+color: white;
+}
+.service2{
+background-color:  #F3EFA1;
+color: white;
+}
+.service3{
+background-color: #124734;
+color: white;
+}
+.service4{
+background-color: #124734;
+color: white;
+}
+
+.cards2 {
+  border-radius: 0.5rem ;
+  --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  padding: 1.5rem;
+  height: 60vh;
+  margin-bottom: 1rem;
+}
+
+
+/* .Card1P{
+font-size: 1.25rem;
+line-height: 1.75rem;
+margin-right: 16rem;
+text-align: right;
+} */
+@media (max-width: 1026px) {
+  .mypadding{
+      padding-top: 54.7vh;
+  }
+  .image{
+    width: 25rem;
+    height: 33rem;
+  }
+  .image2{
+    width: 40rem;
+    height: 36.25rem;
+    margin-left: -13rem;
+    margin-bottom: 5rem;
+    padding-bottom: 20vh;
+  }
+  .chickimg{
+    position: relative;
+    margin-left: -18rem;
+    width: 24rem;
+    height: 18rem;
+    margin-bottom: -2rem;
+  }
+  .firstp{
+    margin-top: -8rem;
+    margin-right: 17rem;
+    margin-left: -23rem;
+    font-size: 3rem;
+    z-index: 2;
+  }
+  .heading1{
+    padding-left: 0;
+  }
+  
+  .cards {
+    width: auto;
+    margin-bottom: 1rem;
+    height: 38vh;
+  }
+  .quotes{
+    margin-top: 3rem;
+    margin-left: 18rem;
+    
+  }
+  .section4{
+    height: 127vh;
+  }
+  
+}
+@media (max-width: 790px) {
+.mypadding{
+  padding-top: 75vh;;
+}
+.chickimg{
+width: 16rem;
+height: 16rem;
+}
+.section3{
+  min-height: 60vh;
+}
+.heading{
+font-size: 3.5rem;
+}
+.heading1{
+
+padding-left: 0;
+}
+.quotes{
+margin-top: 15rem;
+margin-left: 40rem;
+
+}
+.section4{
+height: 194vh;
+}
+.cards{
+height: 61vh;
+}
+}
+@media (max-width: 550px) {
+  .mypadding{
+      padding-top: 72vh;;
+  }
+  .image{
+      width:16rem;
+      height: 14rem;
+  }
+  .image2{
+    width: 16rem;
+    height: 22rem;
+    margin-top: 5.65rem;
+  }
+  .chickimg{
+    width: 9rem;
+    height: 8rem;
+    margin-bottom: 8rem;
+    z-index: 1;
+  }
+  .firstp{
+    font-size: 1.4rem;
+    z-index: 1;
+    margin-top: -14rem;
+    margin-left: -15rem;
+  }
+  .section3{
+      min-height: 50vh;
+  }
+  .heading{
+    font-size: 3.5rem;
+  }
+  .heading1{
+    
+    padding-left: 0;
+  }
+  .quotes{
+    margin-top: 3rem;
+    margin-left: 18rem;
+    margin-bottom: 1rem;
+  }
+}
+@media (max-width: 390px) {
+.image{
+  width: 16rem;
+  height: 16rem;
+}
+.mypadding{
+  padding-top: 64vh;
+}
+.chickimg{
+  width: 0;
+}
+.image2{
+  z-index: -1;
+  width: 12rem;
+  height: 19rem;
+  margin-top: 3rem;
+}
+.firstp{
+  font-size: 1.3rem;
+  z-index: 1;
+  margin-top: -8rem;
+  margin-left: -15rem;
+}
+}  

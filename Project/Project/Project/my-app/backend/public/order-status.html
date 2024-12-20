@@ -1,0 +1,95 @@
+<!-- public/order-status.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Status</title>
+  <link rel="stylesheet" href="order-status.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Order Status</h1>
+    <table id="orders-table">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer Email</th>
+          <th>Recipe</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="orders-list">
+        <!-- Orders will be populated here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // Fetch orders and populate the table
+    async function fetchOrders() {
+      try {
+        const response = await fetch('http://localhost:5000/get-orders');
+        const orders = await response.json();
+        
+        const ordersList = document.getElementById('orders-list');
+        ordersList.innerHTML = '';
+
+        orders.forEach(order => {
+          const tr = document.createElement('tr');
+          
+          tr.innerHTML = `
+            <td>${order._id}</td>
+            <td>${order.customerEmail}</td>
+            <td>${order.recipe}</td>
+            <td>
+              <select id="status-${order._id}" onchange="updateStatus('${order._id}')">
+                <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>Preparing</option>
+                <option value="delivering" ${order.status === 'delivering' ? 'selected' : ''}>Delivering</option>
+                <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+              </select>
+            </td>
+            <td>
+              <button onclick="updateStatus('${order._id}')">Update Status</button>
+            </td>
+          `;
+          
+          ordersList.appendChild(tr);
+        });
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    }
+
+    async function updateStatus(orderId) {
+      const status = document.getElementById(`status-${orderId}`).value;
+
+      try {
+        const response = await fetch('http://localhost:5000/update-order-status', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ orderId, status }),
+        });
+        
+        const result = await response.json();
+        if (response.ok) {
+          alert('Order status updated successfully');
+          fetchOrders(); // Refresh the order list
+        } else {
+          alert(result.error || 'Failed to update order status');
+        }
+      } catch (error) {
+        console.error("Error updating status:", error);
+        alert("Error updating status");
+      }
+    }
+
+    // Fetch orders when the page loads
+    window.onload = fetchOrders;
+  </script>
+</body>
+</html>

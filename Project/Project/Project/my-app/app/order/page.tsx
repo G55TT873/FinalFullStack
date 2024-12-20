@@ -1,12 +1,12 @@
-import React from "react";
-import Order from "./order";
+import React from 'react'
+import App from './App'
 
-const Page = () => {
+const page = () => {
   return (
     <div>
-      <Order />
+      <App/>
     </div>
-  );
-};
+  )
+}
 
-export default Page;
+export default page

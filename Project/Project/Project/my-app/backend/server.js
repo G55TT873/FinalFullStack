@@ -7,10 +7,12 @@ const path = require('path');
 const app = express();
 const PORT = 5000;
 
+// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// MongoDB connection URI
 const uri = 'mongodb+srv://marwan:Here@cluster0.oyfec.mongodb.net/login?retryWrites=true&w=majority';
 
 mongoose.connect(uri, {
@@ -22,46 +24,107 @@ mongoose.connect(uri, {
   console.error('Error connecting to MongoDB', err);
 });
 
+// Login Schema for MongoDB
 const loginSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  accountType: { type: String, enum: ['chef', 'admin', 'customer'], required: true, default: 'customer' },
+  password: { type: String, required: true }
 });
 
 const Login = mongoose.model('Login', loginSchema, 'logincollection');
 
+// Taco Menu Schema and Model
+const tacoSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  price: { type: Number, required: true },
+});
+
+const Taco = mongoose.model('Taco', tacoSchema, 'tacos');
+
+// Order Schema
 const orderSchema = new mongoose.Schema({
-  customerEmail: { type: String, required: true },
-  recipeId: { type: String, required: true },
-  status: { type: String, enum: ['processing', 'preparing', 'delivering', 'delivered'], default: 'processing' },
-  createdAt: { type: Date, default: Date.now },
+  items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Taco' }],
+  quantities: [{ type: Number, required: true }], // Save quantities as well
+  total: { type: Number, required: true },
+  user: {
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    address: { type: String, required: true },
+    phone: { type: String, required: true }
+  },
+  createdAt: { type: Date, default: Date.now }
 });
 
-const Order = mongoose.model('Order', orderSchema, 'orders');
 
-const recipeSchema = new mongoose.Schema({
-  name: { type: String, required: true, unique: true },
-  description: { type: String, required: true },
-  ingredients: { type: [String], required: true },
-  createdAt: { type: Date, default: Date.now },
-});
+// Add Taco to Menu
+app.post('/add-taco', async (req, res) => {
+  const { name, price } = req.body;
 
-const Recipe = mongoose.model('Recipe', recipeSchema, 'recipes');
-
-const updateAccountType = async () => {
   try {
-    const result = await Login.updateMany(
-      { accountType: { $exists: false } },
-      { $set: { accountType: 'customer' } }
-    );
-    console.log(`Updated ${result.nModified} entries to have a default accountType.`);
+    const newTaco = new Taco({ name, price });
+    await newTaco.save();
+    res.status(201).json({ message: 'Taco added to menu successfully', newTaco });
   } catch (error) {
-    console.error('Error updating account types:', error);
+    res.status(500).json({ error: 'Failed to add taco', details: error.message });
   }
-};
+});
 
-updateAccountType();
+// Get Taco Menu
+app.get('/menu', async (req, res) => {
+  try {
+    const tacos = await Taco.find();
+    res.status(200).json(tacos);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch tacos', details: error.message });
+  }
+});
 
+// Place an Order (Checkout Route)
+app.post('/checkout', async (req, res) => {
+  const { tacoIds, quantities, userEmail, shippingAddress } = req.body;
+
+  if (!tacoIds || !quantities || tacoIds.length !== quantities.length) {
+    return res.status(400).json({ error: 'Invalid order details' });
+  }
+
+  if (!userEmail || !shippingAddress) {
+    return res.status(400).json({ error: 'Email and shipping address are required' });
+  }
+
+  try {
+    const tacos = await Taco.find({ '_id': { $in: tacoIds } });
+    let total = 0;
+
+    tacos.forEach((taco, index) => {
+      total += taco.price * quantities[index];
+    });
+
+    const newOrder = new Order({
+      items: tacoIds,
+      total,
+      userEmail,
+      shippingAddress,
+      paymentStatus: 'Pending', // Default to pending, can update later
+    });
+
+    await newOrder.save();
+
+    res.status(201).json({ message: 'Checkout successful', newOrder });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to complete checkout', details: error.message });
+  }
+});
+
+// Get Orders
+app.get('/orders', async (req, res) => {
+  try {
+    const orders = await Order.find().populate('items');
+    res.status(200).json(orders);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch orders', details: error.message });
+  }
+});
+
+// Existing Login Routes
 app.get('/add-login', async (req, res) => {
   try {
     const logins = await Login.find({});
@@ -72,25 +135,19 @@ app.get('/add-login', async (req, res) => {
 });
 
 app.post('/add-login', async (req, res) => {
-  const { email, password, accountType } = req.body;
+  const { email, password } = req.body;
 
-  const type = accountType || 'customer';
-
-  if (!['chef', 'admin', 'customer'].includes(type)) {
-    return res.status(400).json({ error: 'Invalid account type' });
+  const existingLogin = await Login.findOne({ email });
+  if (existingLogin) {
+    return res.status(400).json({ error: 'Email already exists' });
   }
 
   try {
-    const existingLogin = await Login.findOne({ email });
-    if (existingLogin) {
-      return res.status(400).json({ error: 'Email already exists' });
-    }
-
-    const newLogin = new Login({ email, password, accountType: type });
+    const newLogin = new Login({ email, password });
     await newLogin.save();
-    res.status(201).json({ message: 'Account created successfully', newLogin });
+    res.status(201).json({ message: 'Login added successfully', newLogin });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create account', details: error.message });
+    res.status(500).json({ error: 'Failed to add login', details: error.message });
   }
 });
 
@@ -104,10 +161,7 @@ app.post('/validate-login', async (req, res) => {
       return res.status(401).json({ error: 'Incorrect email or password' });
     }
 
-    res.status(200).json({
-      message: 'Login successful',
-      accountType: user.accountType,
-    });
+    res.status(200).json({ message: 'Login successful' });
   } catch (error) {
     res.status(500).json({ error: 'Server error during login', details: error.message });
   }
@@ -127,126 +181,17 @@ app.delete('/delete-login', async (req, res) => {
     }
     res.status(200).json({ message: 'Login deleted successfully' });
   } catch (error) {
+    console.error("Error deleting login:", error);
     res.status(500).json({ error: 'Failed to delete login', details: error.message });
   }
 });
 
-app.post('/place-order', async (req, res) => {
-  const { customerEmail, recipeId } = req.body;
-
-  if (!customerEmail || !recipeId) {
-    return res.status(400).json({ error: 'Customer email and recipe ID are required' });
-  }
-
-  try {
-    const newOrder = new Order({
-      customerEmail,
-      recipeId,
-      status: 'processing',
-    });
-
-    await newOrder.save();
-    res.status(201).json({ message: 'Order placed successfully', order: newOrder });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to place order', details: error.message });
-  }
-});
-
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'adminpage.html'));
-});
-
+// Serve the login page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'add-login.html'));
 });
 
-app.get('/order-status', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'order-status.html'));
-});
-
-app.get('/chef', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'chefpage.html'));
-});
-
-app.get('/orderprep', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'orderprep.html'));
-});
-
-app.get('/add-recipe', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'recipe.html'));
-});
-
-app.get('/get-orders', async (req, res) => {
-  try {
-    const orders = await Order.find({});
-    res.json(orders);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch orders', details: error.message });
-  }
-});
-
-app.post('/update-order-status', async (req, res) => {
-  const { orderId, status } = req.body;
-
-  if (!['processing', 'preparing', 'delivering', 'delivered'].includes(status)) {
-    return res.status(400).json({ error: 'Invalid status' });
-  }
-
-  try {
-    const order = await Order.findById(orderId);
-    if (!order) {
-      return res.status(404).json({ error: 'Order not found' });
-    }
-
-    order.status = status;
-    await order.save();
-    res.status(200).json({ message: 'Order status updated successfully' });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to update order status', details: error.message });
-  }
-});
-
-app.post('/add-recipe', async (req, res) => {
-  const { name, description, ingredients } = req.body;
-
-  if (!name=== 0) {
-    return res.status(400).json({ error: 'All fields are required' });
-  }
-
-  for (let ingredient of ingredients) {
-    if (!ingredient || typeof ingredient !== 'string' || ingredient.trim() === '') {
-      return res.status(400).json({ error: 'Each ingredient must be a non-empty string' });
-    }
-  }
-
-  try {
-    const existingRecipe = await Recipe.findOne({ name });
-    if (existingRecipe) {
-      return res.status(400).json({ error: 'Recipe already exists' });
-    }
-
-    const newRecipe = new Recipe({
-      name,
-      description,
-      ingredients,
-    });
-
-    await newRecipe.save();
-    res.status(201).json({ message: 'Recipe added successfully', recipe: newRecipe });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to add recipe', details: error.message });
-  }
-});
-
-app.get('/get-recipes', async (req, res) => {
-  try {
-    const recipes = await Recipe.find({});
-    res.json(recipes);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch recipes', details: error.message });
-  }
-});
-
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

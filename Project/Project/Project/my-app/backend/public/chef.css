@@ -1,49 +1,173 @@
-/* General Styles */
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f7f6;
-    margin: 0;
-    padding: 20px;
-    color: #333;
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(135deg, #6e7dff, #9b59b6);
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+  background-size: cover;
+  text-align: center;
+}
+/* Navbar Styling */
+.navbar {
+  width: 100%;
+  background-color: #34495e;
+  padding: 10px 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.navbar-logo {
+  color: white;
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 20px;
+}
+
+.navbar-links li {
+  list-style: none;
+}
+
+.navbar-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  transition: all 0.3s;
+}
+
+.navbar-links a:hover {
+  background-color: #1abc9c;
+  border-radius: 5px;
+}
+
+/* Footer Styling */
+.footer {
+  width: 100%;
+  background-color: #34495e;
+  color: white;
+  padding: 10px;
+  position: fixed;
+  bottom: 0;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.footer a {
+  color: #1abc9c;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 2s ease-in-out;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #fff;
+  letter-spacing: 5px;
+  animation: glow 1.5s infinite alternate;
+}
+
+.chef-buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 20px;
+}
+
+/* Button Styles */
+button {
+  padding: 15px 30px;
+  font-size: 1.1rem;
+  background-color: #ff6347;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(255, 99, 71, 0.6);
+}
+
+/* New Hover Animation: Glowing outline and slight lift */
+button:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 20px rgba(255, 99, 71, 0.9), 0 0 30px rgba(255, 99, 71, 0.7);
+  outline: 2px solid #ff6347;
+  outline-offset: 5px;
+  animation: outlineGlow 1.5s ease-out infinite alternate;
+}
+
+/* New Active Animation: 3D press effect */
+button:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 10px rgba(255, 99, 71, 0.5);
+}
+
+/* Outline Glow Animation */
+@keyframes outlineGlow {
+  0% {
+    outline-color: rgba(255, 99, 71, 0.8);
   }
-  
-  h1 {
-    text-align: center;
-    color: #333;
+  100% {
+    outline-color: rgba(255, 99, 71, 0.5);
   }
-  
-  /* Chef Button Styles */
-  .chef-buttons {
-    display: flex;
-    justify-content: center;
-    margin-top: 50px;
+}
+
+/* New Button Animation: Floating bounce */
+button:nth-child(1) {
+  animation: buttonFloat 2s ease-in-out infinite;
+}
+
+button:nth-child(2) {
+  animation: buttonFloat 2s ease-in-out infinite 0.5s;
+}
+
+@keyframes buttonFloat {
+  0% {
+    transform: translateY(0);
   }
-  
-  .chef-buttons button {
-    padding: 15px 30px;
-    font-size: 16px;
-    color: #fff;
-    background-color: #4CAF50;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  50% {
+    transform: translateY(-10px);
   }
-  
-  .chef-buttons button:hover {
-    background-color: #45a049;
+  100% {
+    transform: translateY(0);
   }
-  
-  /* Responsive Styles */
-  @media (max-width: 600px) {
-    .chef-buttons {
-      flex-direction: column;
-      gap: 15px;
-    }
-  
-    .chef-buttons button {
-      width: 80%;
-      font-size: 14px;
-    }
-  }
-  
+}

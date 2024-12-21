@@ -4,14 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chef Page</title>
-  <link rel="stylesheet" href="/chef.css">
+  <link rel="stylesheet" href="chef.css">
 </head>
 <body>
-  <h1>Chef Page</h1>
+  <nav class="navbar">
+    <div class="navbar-container">
+      <a href="/" class="navbar-logo">Chef's Corner</a>
+      <ul class="navbar-links">
+        <li><a href="./add-login.html">Home</a></li>
+        <li><a href="./chefpage.html">Chef Page</a></li>
+      </ul>
+    </div>
+  </nav>
+  <div class="container">
+    <img src="/my-app/public/img/Logo.jpg" alt="">
+    <h1 class="title">Chef's Universe</h1>
 
-  <div class="chef-buttons">
-    <button onclick="window.location.href='/orderprep'">Go to Order Prep</button>
-    <button onclick="window.location.href='/add-recipe'">Add Recipe</button>
+    <div class="chef-buttons">
+      <button onclick="window.location.href='/order-status'">Go to Order Prep</button>
+      <button onclick="window.location.href='/add-recipe'">Add Recipe</button>
+    </div>
   </div>
+  <footer class="footer">
+    <p>&copy; 2024 Chef's Corner. All rights reserved.</p>
+    <p><a href="mailto:contact@chefs-corner.com">Contact Us</a></p>
+  </footer>
+
 </body>
 </html>

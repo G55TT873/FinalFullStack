@@ -1,28 +1,32 @@
-'use client'
-import { useEffect } from 'react';
-import ParallaxSection from './home/ParallaxSection';
-import Divide from './Components/Divide';
+import React from "react";
+import SmoothParallaxSection from "./components/SmoothParallaxSectio";
+import Hero from "./components/Hero";
+import Section1 from "./components/Section1";
 
 export default function Home() {
-  useEffect(() => {
-    const handleScroll = () => {
-      const parallax = document.getElementById('parallax-bg');
-      if (parallax) {
-        // Adjust the speed factor by modifying the multiplier (e.g., 0.5)
-        parallax.style.transform = `translateY(${window.scrollY * 0.5}px)`;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   return (
-    <div>
-      <ParallaxSection />
-      <div className="h-screen bg-gray-200">
-        <Divide/>
-      </div>
-    </div>
+    <main>
+      {/* First section with hero inside description */}
+      <SmoothParallaxSection
+        title=""
+        description=""
+        bgImage="/img/background1.jpg"
+      >
+        {/* Pass Hero inside the description area */}
+        <Hero 
+          image="/img/Taco First.jpg"
+          title="TacoLecious"
+          description="Provident cupiditate voluptatem et in. Quaerat f."
+          buttonText="Get Started"
+        />
+      </SmoothParallaxSection>
+      <Section1/>
+      
+      <SmoothParallaxSection
+        title=""
+        description=""
+        bgImage="/img/background3.png"
+      />
+    </main>
   );
 }

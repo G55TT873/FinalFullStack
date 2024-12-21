@@ -57,7 +57,7 @@ const LoginSign = () => {
   };
 
   return (
-    <section className="bg-gray-50 dark:bg-gray-900">
+    <section className="bg-MyYellow dark:bg-gray-900">
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
         <a
           href="#"
@@ -66,9 +66,9 @@ const LoginSign = () => {
           <img
             src={TacoLogo.src}
             alt="Taco Logo"
-            className="h-10 w-10 object-cover mr-2"
+            className="h-20 w-20 object-cover mr-2"
           />
-          Taco
+          <h1 className="text-5xl">Taco</h1>
         </a>
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">

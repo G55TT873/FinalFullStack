@@ -11,22 +11,45 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        MyRed:"#C91919",
-        MyGreen:"#41A332",
-        MyYellow:"#F6C95C",
-        MyDYellow:"#E7AF00",
-        MyBrown:"#983D00",
-        MyGrey:"#E6EAEB"
+        MyYellow: "#F5C012",
+        MyBlue: "#002C5D"
+        
+      },
+      borderRadius: {
+        "4xl" : "14rem"
       },
       height: {
-        100: '35rem',
-        101:'45rem',
-        102:'60rem'
+        "45":"45.6rem",
+        "100":"35rem",
+        "101":"170rem",
+        "102":"48rem",
+        "same":"32rem"
       },
       width: {
-        100: '28rem',
-        101: '195vh'
-      }
+        "100":"25rem",
+        "51":"47.5rem",
+        "same":"23rem"
+      },
+      fontSize: {
+        "10xl":"7rem"
+      },
+      animation: {
+        RightToLeft: "RightToLeft 20s infinite linear",
+        "spin-slow": "spin 15s linear infinite",
+      },
+      keyframes: {
+        RightToLeft: {
+          "0%": { transform: "translateX(100%)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+      },
+      fontFamily: {
+        sans: ["sans-serif"],
+      },
+      textStroke: {
+        "1": "1px",
+      },
+      
     },
   },
   plugins: [

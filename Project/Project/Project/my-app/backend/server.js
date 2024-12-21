@@ -163,6 +163,41 @@ app.post('/place-order', async (req, res) => {
   }
 });
 
+app.post('/save-review', async (req, res) => {
+  const { customerEmail, orderId, rating, reviewText } = req.body;
+
+  // Validate inputs
+  if (!customerEmail || !orderId || !rating || !reviewText) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  if (rating < 1 || rating > 5) {
+    return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+  }
+
+  try {
+    // Check if the order exists
+    const order = await Order.findOne({ _id: orderId, customerEmail });
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found or does not belong to this user' });
+    }
+
+    // Create and save the review
+    const newReview = new Review({
+      customerEmail,
+      recipeId: order.recipeId, // Assuming `recipeId` is in the order schema
+      rating,
+      reviewText,
+    });
+
+    await newReview.save();
+    res.status(201).json({ message: 'Review submitted successfully', review: newReview });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to save review', details: error.message });
+  }
+});
+
+
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'adminpage.html'));
 });
@@ -257,29 +292,27 @@ app.get('/get-recipes', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch recipes', details: error.message });
   }
 });
+app.get('/get-customer-orders', async (req, res) => {
+  const { customerEmail } = req.query;
 
-// Route to add a new review
-app.post('/add-review', async (req, res) => {
-  const { customerEmail, recipeId, reviewText, rating } = req.body;
-
-  if (!customerEmail || !recipeId || !reviewText || !rating) {
-    return res.status(400).json({ error: 'All fields are required' });
+  if (!customerEmail) {
+    return res.status(400).json({ error: 'Customer email is required' });
   }
 
   try {
-    const newReview = new Review({
-      customerEmail,
-      recipeId,
-      reviewText,
-      rating,
-    });
-
-    await newReview.save();
-    res.status(201).json({ message: 'Review added successfully', review: newReview });
+    const orders = await Order.find({ customerEmail });
+    console.log(`Found ${orders.length} orders for ${customerEmail}`);
+    res.json(orders);
   } catch (error) {
-    res.status(500).json({ error: 'Failedss to add review', details: error.message });
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ error: 'Failed to fetch orders', details: error.message });
   }
 });
+
+
+// Route to add a new review
+
+
 
 app.get('/get-reviews', async (req, res) => {
   try {

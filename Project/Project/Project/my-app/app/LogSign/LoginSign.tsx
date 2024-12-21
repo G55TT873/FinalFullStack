@@ -17,7 +17,9 @@ const LoginSign = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
+    console.log("Attempting login with:", email, password);
+  
     try {
       const response = await fetch("http://localhost:5000/validate-login", {
         method: "POST",
@@ -26,20 +28,21 @@ const LoginSign = () => {
         },
         body: JSON.stringify({ email, password }),
       });
-
+  
       const result = await response.json();
-
+      console.log("Login response:", result);
+  
       if (response.ok) {
-        // Save email to localStorage upon successful login
-        localStorage.setItem("userEmail", email);
-
-        // Redirect based on the accountType returned by the server
+        localStorage.setItem("userId", result.userId); // Store userId
+        localStorage.setItem("userEmail", email); // Store email for reference
+  
+        // Redirect based on the accountType
         switch (result.accountType) {
           case "admin":
-            window.location.href = "http://localhost:5000/admin"; // Admin page
+            window.location.href = "http://localhost:5000/admin";
             break;
           case "chef":
-            window.location.href = "http://localhost:5000/chef"; // Chef page
+            window.location.href = "http://localhost:5000/chef";
             break;
           case "customer":
             window.location.href = "http://localhost:3000/order"; // Customer order page
@@ -52,9 +55,11 @@ const LoginSign = () => {
       }
     } catch (error) {
       console.error("Error during login:", error);
-      setErrorMessage("Error connecting to the server.");
+      setErrorMessage(`Error connecting to the server: ${error.message}`);
     }
   };
+  
+
 
   return (
     <section className="bg-MyYellow dark:bg-gray-900">

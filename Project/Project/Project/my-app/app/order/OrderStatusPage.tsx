@@ -1,120 +1,155 @@
-"use client";
+'use client'
+import React, { useState, useEffect } from 'react';
+import styles from './orderStatus.module.css';
 
-import { useEffect, useState } from "react";
-
-type Order = {
-  _id: string;
-  customerEmail: string;
-  status: string;
-};
-
-type Review = {
-  orderId: string;
-  rating: number;
-  review: string;
-};
-
-export default function OrderStatus() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+const OrderStatus: React.FC = () => {
+  const [orders, setOrders] = useState<any[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
   const [rating, setRating] = useState<number>(0);
-  const [review, setReview] = useState<string>("");
+  const [reviewText, setReviewText] = useState<string>('');
+  const [orderStatus, setOrderStatus] = useState<string>('');
+  const [customerEmail, setCustomerEmail] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
+  const ordersPerPage = 5; // Display 5 orders per page
+
+  // Fetch orders and set logged-in email
   useEffect(() => {
+    const loggedInEmail = localStorage.getItem('userEmail');
+    if (loggedInEmail) {
+      setCustomerEmail(loggedInEmail);
+    } else {
+      setOrderStatus('Please log in to leave a review.');
+    }
+
     const fetchOrders = async () => {
       try {
-        const response = await fetch("http://localhost:5000/get-orders");
-        const data = await response.json();
-        setOrders(data);
+        console.log(`Fetching orders for: ${loggedInEmail}`);
+        const response = await fetch(`http://localhost:5000/get-customer-orders?customerEmail=${loggedInEmail}`);
+        if (response.ok) {
+          const data = await response.json();
+          setOrders(data);
+        } else {
+          throw new Error('Failed to fetch orders');
+        }
       } catch (error) {
-        console.error("Error fetching orders:", error);
+        console.error('Error fetching orders:', error);
+        setOrderStatus('Error fetching orders');
       }
     };
 
-    // Fetch data initially
     fetchOrders();
+  }, []);
 
-    // Set up interval to fetch data every 10 seconds
-    const intervalId = setInterval(fetchOrders, 10000); // 10000 ms = 10 seconds
-
-    // Cleanup the interval when component unmounts or re-renders
-    return () => clearInterval(intervalId);
-  }, []); // Empty dependency array ensures the effect runs only once
-
+  // Handle review submission
   const handleReviewSubmit = async () => {
-    if (selectedOrderId && rating > 0) {
-      const newReview = {
-        orderId: selectedOrderId,
-        rating,
-        review,
-      };
-  
-      try {
-        const response = await fetch("http://localhost:5000/save-review", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newReview),
-        });
-  
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error("API error:", errorData);
-          alert(`Failed to submit review: ${errorData.message}`);
-          return;
-        }
-  
-        const result = await response.json();
-        console.log("Review submitted:", result);
-        setReviews([...reviews, newReview]);
-        alert("Review submitted successfully!");
-        setRating(0);
-        setReview("");
-      } catch (error) {
-        console.error("Error submitting review:", error);
-        alert("Failed to submit review.");
+    if (!selectedOrder) {
+      setOrderStatus('Please select an order to review.');
+      return;
+    }
+
+    if (!rating || !reviewText) {
+      setOrderStatus('Please provide a rating and a review.');
+      return;
+    }
+
+    if (!customerEmail) {
+      setOrderStatus('You need to be logged in to submit a review.');
+      return;
+    }
+
+    const newReview = {
+      customerEmail,
+      recipeId: selectedOrder,
+      reviewText,
+      rating,
+    };
+
+    try {
+      const response = await fetch('http://localhost:5000/save-review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newReview),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
       }
-    } else {
-      alert("Please select an order and provide a rating.");
+
+      setOrderStatus('Review submitted successfully!');
+      resetReviewForm();
+    } catch (error) {
+      setOrderStatus(
+        error instanceof Error
+          ? `Error submitting review: ${error.message}`
+          : 'An unknown error occurred.'
+      );
     }
   };
+
   
 
+  // Reset the review form after submission
+  const resetReviewForm = () => {
+    setRating(0);
+    setReviewText('');
+  };
+
+  // Pagination logic
+  const indexOfLastOrder = currentPage * ordersPerPage;
+  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+  const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
+
+  const totalPages = Math.ceil(orders.length / ordersPerPage);
+
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Order Status</h1>
-      <table className="min-w-full table-auto border-collapse border border-gray-300">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border px-4 py-2">Order ID</th>
-            <th className="border px-4 py-2">Customer Email</th>
-            <th className="border px-4 py-2">Status</th>
-            <th className="border px-4 py-2">Rate Service</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map((order) => (
-            <tr
-              key={order._id}
-              className="hover:bg-gray-50"
-              onClick={() => setSelectedOrderId(order._id)}
+    <div className={styles.pageContainer}>
+      <header className={styles.header}>
+        <h1>Order Dashboard</h1>
+        <p>View your orders and leave reviews for completed ones.</p>
+      </header>
+
+      <section className={styles.ordersSection}>
+        <h2>Your Orders</h2>
+        {orders.length === 0 ? (
+          <div>
+            <p>No orders found.</p>
+            <button
+              onClick={() => window.location.href = "http://localhost:3000/order"} // Redirect to order page
+              className={styles.submitButton}
             >
-              <td className="border px-4 py-2">{order._id}</td>
-              <td className="border px-4 py-2">{order.customerEmail}</td>
-              <td className="border px-4 py-2">{order.status}</td>
-              <td className="border px-4 py-2">
-                {selectedOrderId === order._id && (
-                  <>
-                    <div className="flex items-center">
-                      {/* Rating Stars */}
+              Make an Order
+            </button>
+          </div>
+        ) : (
+          <ul className={styles.ordersList}>
+            {currentOrders.map((order) => (
+              <li key={order._id} className={styles.orderItem}>
+                <div className={styles.orderDetails}>
+                  <div>
+                    <h3>Order #{order._id.slice(0, 8)}...</h3>
+                    <p>Status: {order.status}</p>
+                    <p>Total: ${order.total || 'N/A'}</p>
+                  </div>
+                  <button
+                    onClick={() =>
+                      setSelectedOrder((prev) =>
+                        prev === order._id ? null : order._id
+                      )
+                    }
+                    className={styles.submitButton}
+                  >
+                    {selectedOrder === order._id ? 'Cancel Review' : 'Review Order'}
+                  </button>
+                </div>
+                {selectedOrder === order._id && (
+                  <div className={styles.reviewForm}>
+                    <div className={styles.starRating}>
                       {[1, 2, 3, 4, 5].map((star) => (
                         <span
                           key={star}
-                          className={`cursor-pointer ${
-                            rating >= star ? "text-yellow-500" : "text-gray-300"
-                          }`}
+                          className={`${styles.star} ${rating >= star ? styles.filled : ''}`}
                           onClick={() => setRating(star)}
                         >
                           ★
@@ -122,41 +157,44 @@ export default function OrderStatus() {
                       ))}
                     </div>
                     <textarea
-                      className="mt-2 p-2 border border-gray-300 rounded w-full"
                       placeholder="Write your review..."
-                      value={review}
-                      onChange={(e) => setReview(e.target.value)}
+                      value={reviewText}
+                      onChange={(e) => setReviewText(e.target.value)}
+                      className={styles.textarea}
                     />
-                    <button
-                      onClick={handleReviewSubmit}
-                      className="mt-2 bg-blue-500 text-white py-2 px-4 rounded"
-                    >
+                    <button onClick={handleReviewSubmit} className={styles.submitButton}>
                       Submit Review
                     </button>
-                  </>
+                    {orderStatus && <p className={styles.statusMessage}>{orderStatus}</p>}
+                  </div>
                 )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="mt-6">
-        <h2 className="text-xl font-bold">Customer Reviews</h2>
-        {reviews.length > 0 ? (
-          <ul>
-            {reviews.map((review, index) => (
-              <li key={index} className="border-b py-2">
-                <p>
-                  <strong>Order {review.orderId}:</strong> {review.review}
-                </p>
-                <p>Rating: {review.rating} ★</p>
               </li>
             ))}
           </ul>
-        ) : (
-          <p>No reviews yet.</p>
         )}
-      </div>
+        {orders.length > ordersPerPage && (
+          <div className={styles.pagination}>
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
+        )}
+      </section>
+      {orderStatus && <p className={styles.statusMessage}>{orderStatus}</p>}
     </div>
   );
-}
+};
+
+export default OrderStatus;

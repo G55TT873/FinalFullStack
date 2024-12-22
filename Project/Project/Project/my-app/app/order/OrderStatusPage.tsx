@@ -1,4 +1,5 @@
-'use client'
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import styles from './orderStatus.module.css';
 
@@ -24,8 +25,7 @@ const OrderStatus: React.FC = () => {
 
     const fetchOrders = async () => {
       try {
-        console.log(`Fetching orders for: ${loggedInEmail}`);
-        const response = await fetch(`http://localhost:5000/get-customer-orders?customerEmail=${loggedInEmail}`);
+        const response = await fetch('http://localhost:5000/get-orders');
         if (response.ok) {
           const data = await response.json();
           setOrders(data);
@@ -88,8 +88,6 @@ const OrderStatus: React.FC = () => {
     }
   };
 
-  
-
   // Reset the review form after submission
   const resetReviewForm = () => {
     setRating(0);
@@ -113,15 +111,7 @@ const OrderStatus: React.FC = () => {
       <section className={styles.ordersSection}>
         <h2>Your Orders</h2>
         {orders.length === 0 ? (
-          <div>
-            <p>No orders found.</p>
-            <button
-              onClick={() => window.location.href = "http://localhost:3000/order"} // Redirect to order page
-              className={styles.submitButton}
-            >
-              Make an Order
-            </button>
-          </div>
+          <p>No orders found.</p>
         ) : (
           <ul className={styles.ordersList}>
             {currentOrders.map((order) => (
@@ -149,7 +139,9 @@ const OrderStatus: React.FC = () => {
                       {[1, 2, 3, 4, 5].map((star) => (
                         <span
                           key={star}
-                          className={`${styles.star} ${rating >= star ? styles.filled : ''}`}
+                          className={`${styles.star} ${
+                            rating >= star ? styles.filled : ''
+                          }`}
                           onClick={() => setRating(star)}
                         >
                           ★
@@ -162,10 +154,15 @@ const OrderStatus: React.FC = () => {
                       onChange={(e) => setReviewText(e.target.value)}
                       className={styles.textarea}
                     />
-                    <button onClick={handleReviewSubmit} className={styles.submitButton}>
+                    <button
+                      onClick={handleReviewSubmit}
+                      className={styles.submitButton}
+                    >
                       Submit Review
                     </button>
-                    {orderStatus && <p className={styles.statusMessage}>{orderStatus}</p>}
+                    {orderStatus && (
+                      <p className={styles.statusMessage}>{orderStatus}</p>
+                    )}
                   </div>
                 )}
               </li>
@@ -184,7 +181,9 @@ const OrderStatus: React.FC = () => {
               Page {currentPage} of {totalPages}
             </span>
             <button
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
               disabled={currentPage === totalPages}
             >
               Next
